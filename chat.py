@@ -69,11 +69,9 @@ def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')
 def main():
     args = set_args()
 
-    # When using GPU, set the environment variable CUDA_VISIBLE_DEVICES to specify the GPU to use
     args.cuda = torch.cuda.is_available() and (not args.no_cuda)  # End up with a bool value
     device = 'cuda' if args.cuda else 'cpu'
-    # logger.info('using device:{}'.format(device))  # logs an informational message to the logger object.
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.device
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.device  # Set GPU Device you use
 
     # Tokenizer
     tokenizer = BertTokenizerFast(vocab_file=args.dictionary_path,
