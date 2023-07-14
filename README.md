@@ -2,8 +2,17 @@
 This is a ChatPet based on GPT with Fine-tuning. 
 
 ## Introduction
-ChatPet is an AI-based chatbot that aims to provide emotional value to users. The project focuses on creating a chatbot that can operate on normal devices with limited computing resources, as current language models like GPT3 and LLaMA require extensive computing resources. It would be based on GPT without calling API, and also target on a adapter to Multi-modal.  
+ChatPet is an AI-based chatbot that aims to provide emotional value to users. The project focuses on creating a chatbot that can operate on normal devices with limited computing resources.
 
-## Current Status
-  1. Basic Chat module
-  2. Basic Fine-tune module
+## Work Status
+- LLaMA Deployment -> On going
+  - Chat :white_check_mark: 
+  - Partial Params Finetune (LoRA) :white_check_mark: 
+  - Short-Long Term Memory: white_check_mark: 
+
+- GPT2 Deployment -> Stop the Update
+  - Full Params Finetune :white_check_mark: Done
+  - Chat :white_check_mark: Done
+  - Short-Term Memory :white_check_mark: Done
+  - Temperature, Top-k, Top-p, accumulate_grad :white_check_mark: Done
+
