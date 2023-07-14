@@ -96,7 +96,33 @@ def main(
     )
 
     # Chatting
-    my_prompts = ['You are a cute little chatpet. Your name is loulou.']
+
+    # Token Counting
+    # len(generator.tokenizer.encode(string))
+
+    # Template for chat
+    with open('./prompts/chat_prompt.txt', 'r') as f:
+        dialog = f.read()
+    
+    # Chatting
+    while True:
+        try:
+            # Short Term Memory Mechanism
+
+            dialog += input("User: ")
+            reply = generator.generate(
+                prompts = [dialog],
+                max_gen_len = 50,
+                temperature = temperature,
+                top_p = top_p
+            )
+            print(reply[0])
+            dialog += reply[0]
+
+        except KeyboardInterrupt:
+            print('bye bye~')
+
+    my_prompts = [dialog]
     results = generator.generate(
         prompts = my_prompts, 
         max_gen_len = max_seq_len, 
