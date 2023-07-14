@@ -16,3 +16,10 @@ ChatPet is an AI-based chatbot that aims to provide emotional value to users. Th
   - Short-Term Memory :white_check_mark: 
   - Temperature, Top-k, Top-p, accumulate_grad    :white_check_mark: 
 
+
+## How to use
+### chatpet_v2_llama
+```bash
+cd chatpet_v2_llama
+bash chat.sh  # Config your llama weights path
+```
