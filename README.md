@@ -11,7 +11,9 @@ ChatPet is an AI-based chatbot that aims to provide emotional value to users. Th
     - Multi Style 
   - Partial Params Finetune (LoRA) 🟢
     - PEFT
-  - Short-Long Term Memory
+  - Short-Long Term Memory 🟢
+    - Short-Term Memory :white_check_mark:
+    - Long-Term Memory 
 
 - GPT2 Deployment ☑️
   - Full Params Finetune    :white_check_mark: 
