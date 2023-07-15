@@ -1,6 +1,3 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# This software may be used and distributed according to the terms of the GNU General Public License version 3.
-
 from typing import List
 
 import torch
@@ -9,6 +6,18 @@ from llama.tokenizer import LLaMA_Tokenizer
 from llama.model import LLaMA_Transformer
 
 
+def sample_top_p(probs, p):
+    probs_sort, probs_idx = torch.sort(probs, dim=-1, descending=True)
+    probs_sum = torch.cumsum(probs_sort, dim=-1)
+    mask = probs_sum - probs_sort > p
+    probs_sort[mask] = 0.0
+    probs_sort.div_(probs_sort.sum(dim=-1, keepdim=True))
+    next_token = torch.multinomial(probs_sort, num_samples=1)
+    next_token = torch.gather(probs_idx, -1, next_token)
+    return next_token
+
+
+# Base LLaMA Class
 class LLaMA:
     def __init__(self, model: LLaMA_Transformer, tokenizer: LLaMA_Tokenizer):
         self.model = model
@@ -84,12 +93,18 @@ class LLaMA:
         return decoded
 
 
-def sample_top_p(probs, p):
-    probs_sort, probs_idx = torch.sort(probs, dim=-1, descending=True)
-    probs_sum = torch.cumsum(probs_sort, dim=-1)
-    mask = probs_sum - probs_sort > p
-    probs_sort[mask] = 0.0
-    probs_sort.div_(probs_sort.sum(dim=-1, keepdim=True))
-    next_token = torch.multinomial(probs_sort, num_samples=1)
-    next_token = torch.gather(probs_idx, -1, next_token)
-    return next_token
+# Lou Lou - ChatBot based on LLaMA
+class LouLou(LLaMA):
+    def __init__(self, model: LLaMA_Transformer, tokenizer: LLaMA_Tokenizer):
+        super().__init__(model, tokenizer)
+
+        self.dialog = ''
+
+        def chat(self, 
+                 dialog: str,
+                 max_gen_len: int = 50,
+                 temperature: float = 0.8):
+            pass
+
+        def token_len(self, string: str):
+            return len(self.tokenizer.encode(string))
