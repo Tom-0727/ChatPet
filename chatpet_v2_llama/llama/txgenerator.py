@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import torch
 
@@ -73,6 +73,9 @@ class LLaMA:
                 next_token = torch.argmax(logits, dim=-1)
             next_token = next_token.reshape(-1)
 
+
+            # print(self.tokenizer.decode(next_token.tolist()[0]))
+
             # only replace token if prompt has already been generated
             next_token = torch.where(
                 input_text_mask[:, cur_pos], tokens[:, cur_pos], next_token
@@ -98,13 +101,66 @@ class LouLou(LLaMA):
     def __init__(self, model: LLaMA_Transformer, tokenizer: LLaMA_Tokenizer):
         super().__init__(model, tokenizer)
 
-        self.dialog = ''
+        with open('/home/tom/Tom_Files/iart_ai_lab/ChatPet/chatpet_v2_llama/prompts/chat_prompt.txt', 'r') as f:
+            self.dialog = f.read()
 
-        def chat(self, 
-                 dialog: str,
-                 max_gen_len: int = 50,
-                 temperature: float = 0.8):
-            pass
+    def gen(self, 
+            tokens,
+            tokens_len,
+            temperature: float = 0.8, 
+            top_p: float = 0.95):
+        logits = self.model.forward(tokens[:, 0:tokens_len], 0)
 
-        def token_len(self, string: str):
-            return len(self.tokenizer.encode(string))
+        if temperature > 0:
+            probs = torch.softmax(logits / temperature, dim=-1)
+            next_token = sample_top_p(probs, top_p)
+        else:
+            next_token = torch.argmax(logits, dim=-1)
+        next_token = next_token.reshape(-1)
+
+        
+
+        return next_token
+
+    def chat(self, 
+             stream: bool = True,
+             temperature: float = 0.8) -> str:
+        params = self.model.params
+        
+        # Preprocessing
+        dialog_tokens = self.tokenizer.encode(self.dialog, 
+                                                bos = True,
+                                                eos = False)
+        
+        num_tokens, dialog_tokens = self.stm_manager(dialog_tokens) # Short Term Memory Apply
+        max_gen_len = params.max_seq_len - num_tokens
+        tokens = torch.full((1, params.max_seq_len), self.tokenizer.pad_id).cuda().long()
+        # Fill the tensor with the prompt tokens
+        tokens[1, : len(dialog_tokens)] = torch.tensor(dialog_tokens).long()
+
+        for _ in range(max_gen_len):
+            next_token = self.gen(tokens = tokens,
+                                  tokens_len = num_tokens,
+                                  temperature = temperature)
+            decoded_token = self.tokenizer.decode(next_token.tolist()[0])
+            
+            if stream:
+                print(decoded_token, end = '')
+            
+            # Update
+            num_tokens += 1
+            tokens[0, num_tokens] = next_token
+            dialog_tokens.append(decoded_token)
+            
+
+    
+    # Short Term Memory Mechanism
+    def stm_manager(self, 
+                    itokens: List[int],
+                    back_step: int = 100,
+                    margin: int = 50) -> Tuple[int, List[int]]:
+        max_len = self.model.params.max_seq_len
+        if len(itokens) >= max_len-margin:
+            itokens = itokens[:max_len-back_step]
+        return len(itokens), itokens
+

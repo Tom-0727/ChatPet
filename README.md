@@ -1,4 +1,4 @@
-# ChatPet
+# ChatPet - LouLou
 This is a ChatPet based on GPT with Fine-tuning. 
 
 ## Introduction
@@ -7,6 +7,8 @@ ChatPet is an AI-based chatbot that aims to provide emotional value to users. Th
 ## Work Status
 - LLaMA Deployment 🔲
   - Chat 🟢
+    - Streaming Out
+    - Multi Style 
   - Partial Params Finetune (LoRA) 
   - Short-Long Term Memory
 
