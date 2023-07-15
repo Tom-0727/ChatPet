@@ -1,4 +1,4 @@
-# ChatPet
+# ChatPet - LouLou
 This is a ChatPet based on GPT with Fine-tuning. 
 
 ## Introduction
@@ -7,6 +7,8 @@ ChatPet is an AI-based chatbot that aims to provide emotional value to users. Th
 ## Work Status
 - LLaMA Deployment 🔲
   - Chat 🟢
+    - Streaming Out
+    - Multi Style 
   - Partial Params Finetune (LoRA) 
   - Short-Long Term Memory
 
@@ -16,3 +18,10 @@ ChatPet is an AI-based chatbot that aims to provide emotional value to users. Th
   - Short-Term Memory :white_check_mark: 
   - Repeatition Penalty, Temperature, Top-k, Top-p, accumulate_grad    :white_check_mark: 
 
+
+## How to use
+### chatpet_v2_llama
+```bash
+cd chatpet_v2_llama
+bash chat.sh  # Config your llama weights path
+```
