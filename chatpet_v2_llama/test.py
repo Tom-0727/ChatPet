@@ -12,6 +12,8 @@ def main(a: str = '1',
     result = torch.where(condition, x, y)
     print(result)
 
+    print([1,2,3] + [4, 5])
+
 
 if __name__ == '__main__':
     fire.Fire(main)

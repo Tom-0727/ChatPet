@@ -93,6 +93,7 @@ class LLaMA:
             except ValueError:
                 pass
             decoded.append(self.tokenizer.decode(t))
+        print(decoded)
         return decoded
 
 
@@ -102,65 +103,74 @@ class LouLou(LLaMA):
         super().__init__(model, tokenizer)
 
         with open('/home/tom/Tom_Files/iart_ai_lab/ChatPet/chatpet_v2_llama/prompts/chat_prompt.txt', 'r') as f:
-            self.dialog = f.read()
-
-    def gen(self, 
-            tokens,
-            tokens_len,
-            temperature: float = 0.8, 
-            top_p: float = 0.95):
-        logits = self.model.forward(tokens[:, 0:tokens_len], 0)
-
-        if temperature > 0:
-            probs = torch.softmax(logits / temperature, dim=-1)
-            next_token = sample_top_p(probs, top_p)
-        else:
-            next_token = torch.argmax(logits, dim=-1)
-        next_token = next_token.reshape(-1)
-
+            self.history = f.read()
         
-
-        return next_token
+        self.dialog_block = self.tokenizer.encode(self.history,
+                                                  bos = True,
+                                                  eos = False)
 
     def chat(self, 
-             stream: bool = True,
-             temperature: float = 0.8) -> str:
+             usr_input: str,
+             stream: bool = False,
+             temperature: float = 0.8,
+             top_p: float = 0.95) -> str:
         params = self.model.params
-        
+
         # Preprocessing
-        dialog_tokens = self.tokenizer.encode(self.dialog, 
-                                                bos = True,
-                                                eos = False)
+        self.history += usr_input
+        input_tokens = self.tokenizer.encode(usr_input, bos = False, eos = False)
+        self.dialog_block += input_tokens
         
-        num_tokens, dialog_tokens = self.stm_manager(dialog_tokens) # Short Term Memory Apply
-        max_gen_len = params.max_seq_len - num_tokens
+        self.stm_manager() # Short Term Memory Apply
+
+        num_tokens = len(self.dialog_block)
+
         tokens = torch.full((1, params.max_seq_len), self.tokenizer.pad_id).cuda().long()
         # Fill the tensor with the prompt tokens
-        tokens[1, : len(dialog_tokens)] = torch.tensor(dialog_tokens).long()
+        tokens[0, :len(self.dialog_block)] = torch.tensor(self.dialog_block).long()
 
-        for _ in range(max_gen_len):
-            next_token = self.gen(tokens = tokens,
-                                  tokens_len = num_tokens,
-                                  temperature = temperature)
-            decoded_token = self.tokenizer.decode(next_token.tolist()[0])
+        start_pos = num_tokens
+        prev_pos = 0
+        decode_block = []
+        for cur_pos in range(start_pos, params.max_seq_len):
             
+            logits = self.model.forward(tokens[:, prev_pos:cur_pos], prev_pos)
+
+            if temperature > 0:
+                probs = torch.softmax(logits / temperature, dim=-1)
+                next_token = sample_top_p(probs, top_p)
+            else:
+                next_token = torch.argmax(logits, dim=-1)
+            next_token = next_token.reshape(-1)
+            next_token = next_token.tolist()[0]
+            
+            decode_block.append(next_token)
+            
+            # BreakPoint, when an \n happens: \n == 13
+            if next_token == 13:
+                self.dialog_block.append(next_token)
+                break
+            
+            # Streaming
             if stream:
-                print(decoded_token, end = '')
-            
-            # Update
-            num_tokens += 1
-            tokens[0, num_tokens] = next_token
-            dialog_tokens.append(decoded_token)
-            
+                decoded = self.tokenizer.decode(next_token)
+                print(decoded, end = '')
 
-    
+            # Update
+            tokens[0, cur_pos] = next_token
+            prev_pos = cur_pos
+            self.dialog_block.append(next_token)
+        
+        self.history += self.tokenizer.decode(decode_block)
+        if not stream:
+            print(self.tokenizer.decode(decode_block))
+        print('\n')
+            
     # Short Term Memory Mechanism
     def stm_manager(self, 
-                    itokens: List[int],
                     back_step: int = 100,
-                    margin: int = 50) -> Tuple[int, List[int]]:
+                    margin: int = 50) -> None:
         max_len = self.model.params.max_seq_len
-        if len(itokens) >= max_len-margin:
-            itokens = itokens[:max_len-back_step]
-        return len(itokens), itokens
+        if len(self.dialog_block) >= max_len-margin:
+            self.dialog_block = self.dialog_block[back_step:]
 

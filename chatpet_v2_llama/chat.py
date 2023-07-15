@@ -85,7 +85,7 @@ def loulou_load(
     world_size: int,
     max_seq_len: int,
     max_batch_size: int,
-) :
+) -> LouLou:
     start_time = time.time()
 
     checkpoints = sorted(Path(ckpt_dir).glob("*.pth"))
@@ -109,9 +109,9 @@ def loulou_load(
     torch.set_default_tensor_type(torch.FloatTensor)
     model.load_state_dict(checkpoint, strict=False)
 
-    generator = LouLou(model, tokenizer)
+    chatbot = LouLou(model, tokenizer)
     print(f"Loaded in {time.time() - start_time:.2f} seconds")
-    return generator
+    return chatbot
 
 
 def main(
@@ -127,49 +127,25 @@ def main(
     if local_rank > 0:
         sys.stdout = open(os.devnull, "w")
 
-    generator = load(
+    # generator = load(
+    #     ckpt_dir, tokenizer_path, local_rank, world_size, max_seq_len, max_batch_size
+    # )
+    chatbot_loulou = loulou_load(
         ckpt_dir, tokenizer_path, local_rank, world_size, max_seq_len, max_batch_size
     )
 
     # Chatting
-
-    # Token Counting
-    # len(generator.tokenizer.encode(string))
-
-    # Template for chat
-    with open('./prompts/chat_prompt.txt', 'r') as f:
-        dialog = f.read()
-    
-    # Chatting
     while True:
         try:
-            # Short Term Memory Mechanism
-
-            dialog += input("User: ")
-            reply = generator.generate(
-                prompts = [dialog],
-                max_gen_len = 50,
-                temperature = temperature,
-                top_p = top_p
+            usr_in = input("User: ")
+            chatbot_loulou.chat(
+                usr_input = usr_in + '\n',
             )
-            print(reply[0])
-            dialog += reply[0]
-
         except KeyboardInterrupt:
-            print('bye bye~')
-
-    my_prompts = [dialog]
-    results = generator.generate(
-        prompts = my_prompts, 
-        max_gen_len = max_seq_len, 
-        temperature = temperature, 
-        top_p = top_p
-    )
-
-    for result in results:
-        print(result)
-        print("\n==================================\n")
-
+            with open('./chat_history.txt', 'a') as f:
+                f.write('\n-------------\n')
+                f.write(chatbot_loulou.history)
+            print('Saving Chat History')
 
 if __name__ == "__main__":
     # Using fire.Fire() allows us to pass params from the command line
