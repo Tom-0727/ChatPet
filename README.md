@@ -6,7 +6,7 @@ ChatPet is an AI-based chatbot that aims to provide emotional value to users. Th
 
 ## Work Status
 - LLaMA Deployment 🔲
-  - Chat :white_check_mark:
+  - Chat ✔️
     - Streaming Out :white_check_mark:
     - Multi Style 
   - Partial Params Finetune (LoRA) 🟢
@@ -16,10 +16,11 @@ ChatPet is an AI-based chatbot that aims to provide emotional value to users. Th
     - Long-Term Memory 
 
 - GPT2 Deployment ☑️
-  - Full Params Finetune    :white_check_mark: 
-  - Chat    :white_check_mark: 
-  - Short-Term Memory :white_check_mark: 
-  - Repeatition Penalty, Temperature, Top-k, Top-p, accumulate_grad    :white_check_mark: 
+  - Full Params Finetune    ✔️
+  - Chat    ✔️
+    - Chinese :white_check_mark:
+  - Short-Term Memory ✔️
+  - Repeatition Penalty, Temperature, Top-k, Top-p, accumulate_grad    ✔️
 
 
 ## How to use
