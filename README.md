@@ -6,10 +6,11 @@ ChatPet is an AI-based chatbot that aims to provide emotional value to users. Th
 
 ## Work Status
 - LLaMA Deployment 🔲
-  - Chat 🟢
+  - Chat :white_check_mark:
     - Streaming Out :white_check_mark:
     - Multi Style 
-  - Partial Params Finetune (LoRA) 
+  - Partial Params Finetune (LoRA) 🟢
+    - PEFT
   - Short-Long Term Memory
 
 - GPT2 Deployment ☑️
