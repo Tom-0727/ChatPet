@@ -19,6 +19,7 @@ ChatPet is an AI-based chatbot that aims to provide emotional value to users. Th
   - Full Params Finetune    ✔️
   - Chat    ✔️
     - Chinese :white_check_mark:
+    - English :white_check_mark:
   - Short-Term Memory ✔️
   - Repeatition Penalty, Temperature, Top-k, Top-p, accumulate_grad    ✔️
 
