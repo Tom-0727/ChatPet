@@ -3,3 +3,7 @@ fairscale
 fire
 sentencepiece==0.1.97
 hiq-python
+datasets
+peft
+transformers
+py7zr
